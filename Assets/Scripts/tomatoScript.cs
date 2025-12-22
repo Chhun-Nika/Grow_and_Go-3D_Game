@@ -3,15 +3,17 @@ using UnityEngine;
 
 public class TomatoScript : MonoBehaviour
 {
-    public GameObject[] growthStages;   // 4 prefabs: stage 1 ? stage 4
-    public float[] stageTimes;          // Times for each stage change in minutes
+    public GameObject[] growthStages;
+    public float[] stageTimes;
 
     private GameObject currentStage;
     private int currentIndex = 0;
 
+    // Reference to the land this tomato is planted on
+    public PlantLand plantedLand;
+
     void Start()
     {
-        // Start with stage 1
         SpawnStage(0);
         StartCoroutine(GrowRoutine());
     }
@@ -28,9 +30,7 @@ public class TomatoScript : MonoBehaviour
     {
         while (currentIndex < growthStages.Length - 1)
         {
-            // Convert minutes to seconds
             float waitTime = stageTimes[currentIndex] * 60f;
-
             yield return new WaitForSeconds(waitTime);
 
             currentIndex++;
@@ -39,4 +39,40 @@ public class TomatoScript : MonoBehaviour
 
         Debug.Log("Tomato fully grown! Ready to harvest.");
     }
+
+    public void Harvest()
+    {
+        if (currentIndex != growthStages.Length - 1)
+        {
+            Debug.Log("Tomato is not fully grown yet.");
+            return;
+        }
+
+        int harvestAmount = 2;
+
+        if (StorageManager.Instance != null)
+            StorageManager.Instance.AddTomatoes(harvestAmount);
+
+        if (LevelManager.Instance != null)
+            LevelManager.Instance.AddExp(3);
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.PlayStarFlyEffect(transform.position);
+        }
+
+        if (plantedLand != null)
+        {
+            plantedLand.plantedTomato = null;
+            plantedLand.isEmpty = true;
+            plantedLand.SetBlocked(false);
+
+            if (plantedLand.harvestTrigger != null)
+                plantedLand.harvestTrigger.tomato = null;
+        }
+
+        StopAllCoroutines();
+        Destroy(gameObject);
+    }
+
 }
