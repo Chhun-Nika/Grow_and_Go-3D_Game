@@ -42,30 +42,37 @@ public class TomatoScript : MonoBehaviour
 
     public void Harvest()
     {
-        if (currentIndex == growthStages.Length - 1)
-        {
-            int harvestAmount = 2;
-
-            // Add tomatoes to storage
-            StorageManager.Instance.AddTomatoes(harvestAmount);
-            // Tell the land that it is now empty
-            if (plantedLand != null)
-            {
-                plantedLand.plantedTomato = null;
-                plantedLand.isEmpty = true;
-                plantedLand.SetBlocked(false);
-
-                if (plantedLand.harvestTrigger != null)
-                {
-                    plantedLand.harvestTrigger.tomato = null;
-                }
-            }
-
-            Destroy(gameObject);
-        }
-        else
+        if (currentIndex != growthStages.Length - 1)
         {
             Debug.Log("Tomato is not fully grown yet.");
+            return;
         }
+
+        int harvestAmount = 2;
+
+        if (StorageManager.Instance != null)
+            StorageManager.Instance.AddTomatoes(harvestAmount);
+
+        if (LevelManager.Instance != null)
+            LevelManager.Instance.AddExp(3);
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.PlayStarFlyEffect(transform.position);
+        }
+
+        if (plantedLand != null)
+        {
+            plantedLand.plantedTomato = null;
+            plantedLand.isEmpty = true;
+            plantedLand.SetBlocked(false);
+
+            if (plantedLand.harvestTrigger != null)
+                plantedLand.harvestTrigger.tomato = null;
+        }
+
+        StopAllCoroutines();
+        Destroy(gameObject);
     }
+
 }

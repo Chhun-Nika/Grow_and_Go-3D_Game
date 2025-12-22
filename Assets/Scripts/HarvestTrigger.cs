@@ -3,6 +3,7 @@ using UnityEngine;
 public class HarvestTrigger : MonoBehaviour
 {
 	public TomatoScript tomato;
+	public CornScript corn;
 
 	private void OnTriggerStay(Collider other)
 	{
@@ -19,6 +20,7 @@ public class HarvestTrigger : MonoBehaviour
 		if (Input.GetKeyDown(KeyCode.E) && tomato != null)
 		{
 			tomato.Harvest();
+
 			tomato = null; // reset after harvesting
 		}
 	}

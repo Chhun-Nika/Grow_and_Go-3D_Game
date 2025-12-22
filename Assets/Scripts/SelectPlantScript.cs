@@ -4,6 +4,7 @@ public class PlantSelectUI : MonoBehaviour
 {
     public PlantLand currentLand;
     public GameObject tomatoPrefab;
+    public GameObject cornPrefeb;
 
     public void PlantTomato()
     {
@@ -29,6 +30,30 @@ public class PlantSelectUI : MonoBehaviour
 
   
             currentLand.harvestTrigger.tomato = tomatoScript;
+        }
+
+        currentLand.isEmpty = false;
+        currentLand.SetBlocked(true);
+        gameObject.SetActive(false);
+    }
+
+    public void PlantCorn ()
+    {
+        if (currentLand == null) return;
+
+        GameObject cornObj = Instantiate(
+            cornPrefeb,
+            currentLand.plantPoint.position,
+            currentLand.plantPoint.rotation
+        );
+
+        CornScript cornScript = cornObj.GetComponent<CornScript>();
+        if (cornScript != null)
+        {
+            cornScript.plantedLand = currentLand;
+            currentLand.plantedCorn = cornScript;
+
+            currentLand.harvestTrigger.corn = cornScript;
         }
 
         currentLand.isEmpty = false;
