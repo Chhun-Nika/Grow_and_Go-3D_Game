@@ -2,26 +2,39 @@ using UnityEngine;
 
 public class HarvestTrigger : MonoBehaviour
 {
-	public TomatoScript tomato;
-	public CornScript corn;
+    public TomatoScript tomato;
+    public CornScript corn;
 
-	private void OnTriggerStay(Collider other)
-	{
-		if (!other.CompareTag("Player")) return;
+    private void OnTriggerStay(Collider other)
+    {
+        if (!other.CompareTag("Player")) return;
 
-		if (tomato == null)
-		{
-			// Try to find the TomatoScript on the plants in this area (e.g., child or nearby)
-			TomatoScript foundTomato = GetComponentInChildren<TomatoScript>();
-			if (foundTomato != null)
-				tomato = foundTomato;
-		}
+        if (tomato == null)
+        {
+            TomatoScript foundTomato = GetComponentInChildren<TomatoScript>();
+            if (foundTomato != null)
+                tomato = foundTomato;
+        }
 
-		if (Input.GetKeyDown(KeyCode.E) && tomato != null)
-		{
-			tomato.Harvest();
+        if (corn == null)
+        {
+            CornScript foundCorn = GetComponentInChildren<CornScript>();
+            if (foundCorn != null)
+                corn = foundCorn;
+        }
 
-			tomato = null; // reset after harvesting
-		}
-	}
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (tomato != null)
+            {
+                tomato.Harvest();
+                tomato = null;
+            }
+            else if (corn != null)
+            {
+                corn.Harvest();
+                corn = null;
+            }
+        }
+    }
 }

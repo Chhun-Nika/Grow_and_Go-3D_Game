@@ -12,6 +12,7 @@ public class PlantLand : MonoBehaviour
 
     [HideInInspector]
     public TomatoScript plantedTomato;
+    [HideInInspector]
     public CornScript plantedCorn;
 
     void Start()
