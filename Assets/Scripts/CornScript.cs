@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 
 public class CornScript : MonoBehaviour
 {
@@ -9,7 +9,6 @@ public class CornScript : MonoBehaviour
     private GameObject currentStage;
     private int currentIndex = 0;
 
-    // Reference to the land this corn is planted on
     public PlantLand plantedLand;
 
     void Start()
@@ -23,15 +22,19 @@ public class CornScript : MonoBehaviour
         if (currentStage != null)
             Destroy(currentStage);
 
-        currentStage = Instantiate(growthStages[index], transform.position, Quaternion.identity, transform);
+        currentStage = Instantiate(
+            growthStages[index],
+            transform.position,
+            Quaternion.identity,
+            transform
+        );
     }
 
     IEnumerator GrowRoutine()
     {
         while (currentIndex < growthStages.Length - 1)
         {
-            float waitTime = stageTimes[currentIndex] * 60f;
-            yield return new WaitForSeconds(waitTime);
+            yield return new WaitForSeconds(stageTimes[currentIndex] * 60f);
 
             currentIndex++;
             SpawnStage(currentIndex);
@@ -41,31 +44,24 @@ public class CornScript : MonoBehaviour
     public void Harvest()
     {
         if (currentIndex != growthStages.Length - 1)
-        {
             return;
-        }
 
-        //int harvestAmount = 2;
+        if (StorageManager.Instance != null)
+            StorageManager.Instance.AddCorn(3);   
 
-        //if (StorageManager.Instance != null)
-        //    StorageManager.Instance.AddTomatoes(harvestAmount);
+        if (LevelManager.Instance != null)
+            LevelManager.Instance.AddExp(5);
 
-        //if (LevelManager.Instance != null)
-        //    LevelManager.Instance.AddExp(3);
-
-        //if (UIManager.Instance != null)
-        //{
-        //    UIManager.Instance.PlayStarFlyEffect(transform.position);
-        //}
+        if (UIManager.Instance != null)
+            UIManager.Instance.PlayStarFlyEffect(transform.position);
 
         if (plantedLand != null)
         {
-            plantedLand.plantedTomato = null;
             plantedLand.isEmpty = true;
             plantedLand.SetBlocked(false);
 
-            //if (plantedLand.harvestTrigger != null)
-            //    plantedLand.harvestTrigger. = null;
+            if (plantedLand.harvestTrigger != null)
+                plantedLand.harvestTrigger.corn = null;
         }
 
         StopAllCoroutines();

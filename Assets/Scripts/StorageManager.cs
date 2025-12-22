@@ -4,14 +4,15 @@ public class StorageManager : MonoBehaviour
 {
     public static StorageManager Instance;
 
-    private int tomatoCount = 4;
+    [SerializeField] private int tomatoCount = 4;
+    [SerializeField] private int cornCount = 2;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // Keep this object alive if you want between scenes
+            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -19,32 +20,48 @@ public class StorageManager : MonoBehaviour
         }
     }
 
-    // Add tomatoes to storage
+    // ADD TOMATO
     public void AddTomatoes(int amount)
     {
         tomatoCount += amount;
-        Debug.Log($"Added {amount} tomatoes. Total: {tomatoCount}");
+        Debug.Log($"[Storage] +{amount} Tomato | Total: {tomatoCount}");
     }
 
-    // Remove tomatoes from storage (when planting)
+    // REMOVE TOMATO (PLANTING)
     public bool RemoveTomatoes(int amount)
     {
-        if (tomatoCount >= amount)
+        if (tomatoCount < amount)
         {
-            tomatoCount -= amount;
-            Debug.Log($"Removed {amount} tomatoes. Total: {tomatoCount}");
-            return true;
-        }
-        else
-        {
-            Debug.LogWarning("Not enough tomatoes!");
+            Debug.LogWarning("[Storage] Not enough Tomato");
             return false;
         }
+
+        tomatoCount -= amount;
+        Debug.Log($"[Storage] -{amount} Tomato | Total: {tomatoCount}");
+        return true;
     }
 
-    // Get current tomato count
-    public int GetTomatoCount()
+    // ADD CORN
+    public void AddCorn(int amount)
     {
-        return tomatoCount;
+        cornCount += amount;
+        Debug.Log($"[Storage] +{amount} Corn | Total: {cornCount}");
     }
+
+    // REMOVE CORN (PLANTING)
+    public bool RemoveCorn(int amount)
+    {
+        if (cornCount < amount)
+        {
+            Debug.LogWarning("[Storage] Not enough Corn");
+            return false;
+        }
+
+        cornCount -= amount;
+        Debug.Log($"[Storage] -{amount} Corn | Total: {cornCount}");
+        return true;
+    }
+
+    public int GetTomatoCount() => tomatoCount;
+    public int GetCornCount() => cornCount;
 }
