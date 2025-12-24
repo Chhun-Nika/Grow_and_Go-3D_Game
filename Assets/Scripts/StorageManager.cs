@@ -20,6 +20,22 @@ public class StorageManager : MonoBehaviour
         }
     }
 
+    // CHECK if enough items for an order
+    public bool HasEnoughForOrder(OrderData order)
+    {
+        return tomatoCount >= order.tomatoAmount &&
+               cornCount >= order.cornAmount;
+    }
+
+    // DEDUCT items for an order (SAFE)
+    public void DeductForOrder(OrderData order)
+    {
+        tomatoCount -= order.tomatoAmount;
+        cornCount -= order.cornAmount;
+
+        Debug.Log($"[Storage] Order delivered | Tomato: {tomatoCount}, Corn: {cornCount}");
+    }
+
     // ADD TOMATO
     public void AddTomatoes(int amount)
     {
