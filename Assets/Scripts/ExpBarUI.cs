@@ -12,14 +12,15 @@ public class ExpBarUI : MonoBehaviour
     {
         if (LevelManager.Instance == null) return;
 
-        float fill = (float)LevelManager.Instance.currentExp /
-                     LevelManager.Instance.expToNextLevel;
+        float fill =
+            (float)LevelManager.Instance.CurrentExp /
+            LevelManager.Instance.ExpToNextLevel;
 
         expFill.fillAmount = fill;
 
-        levelText.text = "" + LevelManager.Instance.level;
+        levelText.text = "Lv " + LevelManager.Instance.CurrentLevel;
         expValueText.text =
-            LevelManager.Instance.currentExp + " / " +
-            LevelManager.Instance.expToNextLevel;
+            LevelManager.Instance.CurrentExp + " / " +
+            LevelManager.Instance.ExpToNextLevel;
     }
 }

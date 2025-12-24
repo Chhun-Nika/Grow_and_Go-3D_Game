@@ -4,9 +4,9 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance;
 
-    public int level = 1;
-    public int currentExp = 0;
-    public int expToNextLevel = 10;
+    [SerializeField] private int currentLevel = 1;
+    [SerializeField] private int currentExp = 0;
+    [SerializeField] private int expToNextLevel = 10;
 
     private void Awake()
     {
@@ -16,24 +16,24 @@ public class LevelManager : MonoBehaviour
             Destroy(gameObject);
     }
 
+    public int CurrentLevel => currentLevel;
+    public int CurrentExp => currentExp;
+    public int ExpToNextLevel => expToNextLevel;
+
     public void AddExp(int amount)
     {
         currentExp += amount;
 
         if (currentExp >= expToNextLevel)
-        {
             LevelUp();
-        }
     }
 
     void LevelUp()
     {
         currentExp -= expToNextLevel;
-        level++;
+        currentLevel++;
+        expToNextLevel += 5;
 
-        // Increase next level requirement (Hay Day style)
-        expToNextLevel += 10;
-
-        Debug.Log("LEVEL UP! New Level: " + level);
+        Debug.Log("Level Up! Level: " + currentLevel);
     }
 }
