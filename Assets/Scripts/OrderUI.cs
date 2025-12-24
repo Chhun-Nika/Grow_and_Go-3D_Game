@@ -1,5 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using TMPro;
+using System.Collections;
 using System.Collections.Generic;
 
 public class OrderUI : MonoBehaviour
@@ -7,13 +8,15 @@ public class OrderUI : MonoBehaviour
     public static OrderUI Instance;
 
     [Header("Order Slots")]
-    public List<OrderSlotUI> orderSlots;
+    [SerializeField] private List<OrderSlotUI> orderSlots;
 
     [Header("Detail Panel")]
-    public GameObject detailPanel;
-    public TMP_Text titleText;
-    public TMP_Text tomatoText;
-    public TMP_Text cornText;
+    [SerializeField] private GameObject detailPanel;
+    [SerializeField] private TMP_Text titleText;
+    [SerializeField] private TMP_Text tomatoText;
+    [SerializeField] private TMP_Text cornText;
+    [SerializeField] private TMP_Text coinText;
+    [SerializeField] private TMP_Text expText;
 
     private OrderData currentOrder;
 
@@ -23,14 +26,30 @@ public class OrderUI : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+
+        // Debug: check references
+        if (orderSlots == null || orderSlots.Count == 0)
+            Debug.LogError("OrderUI: orderSlots list is empty or missing!", this);
+        if (detailPanel == null)
+            Debug.LogError("OrderUI: detailPanel missing!", this);
+        if (titleText == null || tomatoText == null ||  cornText == null ||  coinText == null ||  expText == null)
+            Debug.LogError("OrderUI: TMP_Text references missing!", this);
     }
 
     void Start()
     {
-        // Optional: hide detail panel at start
-        detailPanel.SetActive(false);
-        // Optionally, hide whole OrderUI panel if you want to toggle later
-        // gameObject.SetActive(false);
+        // Hide detail panel at start
+        if (detailPanel != null)
+            detailPanel.SetActive(false);
+
+        // Delay refresh to ensure OrderManager exists
+        StartCoroutine(InitAfterFrame());
+    }
+
+    private IEnumerator InitAfterFrame()
+    {
+        yield return null; // wait one frame
+        RefreshUI();        // safe: OrderManager.Instance should exist
     }
 
     public void Open(int selectedIndex)
@@ -43,40 +62,35 @@ public class OrderUI : MonoBehaviour
     {
         if (currentOrder == null) return;
 
-        // Remove the current order without selling
-        OrderManager.Instance.activeOrders.Remove(currentOrder);
+        if (OrderManager.Instance != null)
+            OrderManager.Instance.activeOrders.Remove(currentOrder);
 
-        // Close the detail and main panel
-        detailPanel.SetActive(false);
+        if (detailPanel != null)
+            detailPanel.SetActive(false);
+
         gameObject.SetActive(false);
 
-        // Refresh UI and papers
         RefreshUI();
+
         if (OrderPaperSpawner.Instance != null)
             OrderPaperSpawner.Instance.RefreshPapers();
 
-        // Clear currentOrder reference
         currentOrder = null;
 
-        // If no orders left, generate new ones
-        if (OrderManager.Instance.activeOrders.Count == 0)
-        {
+        if (OrderManager.Instance != null && OrderManager.Instance.activeOrders.Count == 0)
             OrderManager.Instance.GenerateOrders();
-        }
     }
 
     public void RefreshUI()
     {
-        if (OrderManager.Instance == null)
-        {
-            Debug.LogWarning("OrderManager.Instance is null in OrderUI.RefreshUI");
-            return;
-        }
+        if (OrderManager.Instance == null || orderSlots == null) return;
 
         var orders = OrderManager.Instance.activeOrders;
 
         for (int i = 0; i < orderSlots.Count; i++)
         {
+            if (orderSlots[i] == null) continue;
+
             if (i < orders.Count)
                 orderSlots[i].SetOrder(orders[i]);
             else
@@ -86,46 +100,51 @@ public class OrderUI : MonoBehaviour
 
     public void ShowDetail(OrderData order)
     {
+        if (order == null) return;
         currentOrder = order;
-        detailPanel.SetActive(true);
 
-        titleText.text = "Order #" + order.orderId;
-        tomatoText.text = "Tomato: " + order.tomatoAmount;
-        cornText.text = "Corn: " + order.cornAmount;
+        if (detailPanel != null)
+            detailPanel.SetActive(true);
+
+        if (titleText != null) titleText.text = "Order #" + order.orderId;
+        if (tomatoText != null) tomatoText.text = "Tomato: " + order.tomatoAmount;
+        if (cornText != null) cornText.text = "Corn: " + order.cornAmount;
+        if (coinText != null) coinText.text = "Coins: " + order.coinReward;
+        if (expText != null) expText.text = "EXP: " + order.expReward;
     }
 
     public void Sell()
     {
         if (currentOrder == null) return;
 
-        // Check storage
-        if (!StorageManager.Instance.HasEnoughForOrder(currentOrder))
+        if (StorageManager.Instance != null && !StorageManager.Instance.HasEnoughForOrder(currentOrder))
         {
-            Debug.Log("Not enough items in storage");
+            Debug.Log("Not enough items");
             return;
         }
 
-        // Deduct storage
-        StorageManager.Instance.DeductForOrder(currentOrder);
+        if (StorageManager.Instance != null)
+            StorageManager.Instance.DeductForOrder(currentOrder);
 
-        // Remove order
-        OrderManager.Instance.activeOrders.Remove(currentOrder);
+        if (CurrencyManager.Instance != null)
+            CurrencyManager.Instance.AddCoins(currentOrder.coinReward);
 
-        // Close detail panel
-        detailPanel.SetActive(false);
+        if (LevelManager.Instance != null)
+            LevelManager.Instance.AddExp(currentOrder.expReward);
 
-        // Refresh UI & papers
+        if (OrderManager.Instance != null)
+            OrderManager.Instance.activeOrders.Remove(currentOrder);
+        if (detailPanel != null)
+            detailPanel.SetActive(false);
+
+        currentOrder = null;
+
         RefreshUI();
+
         if (OrderPaperSpawner.Instance != null)
             OrderPaperSpawner.Instance.RefreshPapers();
 
-        // Check if all orders are completed
-        if (OrderManager.Instance.activeOrders.Count == 0)
-        {
-            // Generate new orders
+        if (OrderManager.Instance != null && OrderManager.Instance.activeOrders.Count == 0)
             OrderManager.Instance.GenerateOrders();
-        }
     }
-
-
 }

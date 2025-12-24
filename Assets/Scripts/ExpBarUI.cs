@@ -18,7 +18,7 @@ public class ExpBarUI : MonoBehaviour
 
         expFill.fillAmount = fill;
 
-        levelText.text = "Lv " + LevelManager.Instance.CurrentLevel;
+        levelText.text = "" + LevelManager.Instance.CurrentLevel;
         expValueText.text =
             LevelManager.Instance.CurrentExp + " / " +
             LevelManager.Instance.ExpToNextLevel;

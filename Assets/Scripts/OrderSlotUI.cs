@@ -4,26 +4,34 @@ using UnityEngine.UI;
 
 public class OrderSlotUI : MonoBehaviour
 {
-    public TMP_Text titleText;
-    public TMP_Text tomatoText;
-    public TMP_Text cornText;
+    [SerializeField] private TMP_Text titleText;
+    [SerializeField] private TMP_Text tomatoText;
+    [SerializeField] private TMP_Text cornText;
+    [SerializeField] private Button button;
 
     private OrderData order;
-    private Button button;
 
     void Awake()
     {
-        button = GetComponentInChildren<Button>();
-
+        // Fallback: auto-find UI elements if missing
+        if (titleText == null)
+            titleText = transform.Find("TitleText")?.GetComponent<TMP_Text>();
+        if (tomatoText == null)
+            tomatoText = transform.Find("TomatoText")?.GetComponent<TMP_Text>();
+        if (cornText == null)
+            cornText = transform.Find("CornText")?.GetComponent<TMP_Text>();
         if (button == null)
-            Debug.LogError("OrderSlotUI: Button not found!");
+            button = GetComponentInChildren<Button>(true);
+
+        // Debug missing references
+        if (!titleText || !tomatoText || !cornText || !button)
+            Debug.LogError("OrderSlotUI: UI references missing!", this);
     }
 
     public void SetOrder(OrderData data)
     {
-        Debug.Log($"titleText is {(titleText == null ? "NULL" : "OK")}");
-        Debug.Log($"tomatoText is {(tomatoText == null ? "NULL" : "OK")}");
-        Debug.Log($"cornText is {(cornText == null ? "NULL" : "OK")}");
+        if (data == null || titleText == null || tomatoText == null || cornText == null || button == null)
+            return;
 
         order = data;
 
@@ -35,18 +43,20 @@ public class OrderSlotUI : MonoBehaviour
         button.interactable = true;
     }
 
-
     public void Clear()
     {
         order = null;
-        gameObject.SetActive(false);  // hide empty slot
+        gameObject.SetActive(false);
     }
 
-    // Button OnClick → OrderSlotUI.OnClickDetail
     public void OnClickDetail()
     {
         if (order == null) return;
-
+        if (OrderUI.Instance == null)
+        {
+            Debug.LogError("OrderUI.Instance is null!");
+            return;
+        }
         OrderUI.Instance.ShowDetail(order);
     }
 }
