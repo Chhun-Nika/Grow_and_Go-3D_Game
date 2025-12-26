@@ -5,7 +5,7 @@ public class ShopUI : MonoBehaviour
 {
     public TMP_Text feedbackText; // optional (e.g. "Not enough coins")
 
-    private const int CROP_PRICE = 1;
+    private const int CROP_PRICE = 10;
 
     void Start()
     {
